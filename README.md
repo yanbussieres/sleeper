@@ -21,6 +21,13 @@ For example:
 >> python main.py localhost:8002 localhost:8000 localhost:8001
 ```
 
+pysyncobj lib is using the ports for communications between nodes, therefore the HTTP port for the get request are incremented by 1000: 
+```
+curl http://localhost:9000
+curl http://localhost:9001
+curl http://localhost:9002
+```
+
 * Design a system that will select a single node as a “Goose” within a cluster of nodes. Every other node should be considered a “Duck”.
 ✅
 * If the Goose dies, another Duck should become the new Goose.
