@@ -12,13 +12,10 @@ node = sys.argv[1]
 partner_nodes = sys.argv[2:]
 
 
-class KVStorage(SyncObj):
+class EmptyStorageNeededForSync(SyncObj):
     def __init__(self, selfAddress, partnerAddrs):
         cfg = SyncObjConf(dynamicMembershipChange=True)
-        super(KVStorage, self).__init__(selfAddress, partnerAddrs, cfg)
-
-
-_g_kvstorage = KVStorage(node, partner_nodes)
+        super(EmptyStorageNeededForSync, self).__init__(selfAddress, partnerAddrs, cfg)
 
 
 class WebServer(BaseHTTPRequestHandler):
@@ -34,10 +31,7 @@ class WebServer(BaseHTTPRequestHandler):
 
 def run_web_server(host, port):
     webServer = HTTPServer((host, port), WebServer)
-    try:
-        webServer.serve_forever()
-    except KeyboardInterrupt:
-        print("End of Program")
+    webServer.serve_forever()
 
 
 def run_web_server_as_separated_thread(node):
@@ -49,13 +43,14 @@ def run_web_server_as_separated_thread(node):
     function.start()
 
 
-# ========
+sync_object = EmptyStorageNeededForSync(node, partner_nodes)
 
 run_web_server_as_separated_thread(node)
 
 while True:
-    animal = animals_map[_g_kvstorage.getStatus()["state"]]
+    animal = animals_map[sync_object.getStatus()["state"]]
+
     print(
-        f'uptime: {_g_kvstorage.getStatus()["uptime"]} : {_g_kvstorage.getStatus()["self"]}: {animals_map[_g_kvstorage.getStatus()["state"]]}',
+        f'uptime: {sync_object.getStatus()["uptime"]} : {sync_object.getStatus()["self"]}: {animals_map[sync_object.getStatus()["state"]]}',
     )
     time.sleep(1)
